@@ -26,4 +26,4 @@ jobs:
     - name: Build the Docker image
       run: docker compose -f test_docker-compose.yml
     - name: Run container
-      run: docker compose up -f test_docker-compose.yml -d
+      run: docker compose up -d
