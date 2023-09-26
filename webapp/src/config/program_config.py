@@ -96,12 +96,16 @@ class DataBaseSettings:
                 load_dotenv(Path(os.getcwd()) / '.env.dev')
             elif env('DEBUG_MODE') == 1:
                 pass
+            if env('DB_HOST_R') is not None:
+                add_symbol = '_R'
+            else:
+                add_symbol = ''
             cls._instance = super(DataBaseSettings, cls).__new__(cls)
-            cls._database = env('DB_NAME')
-            cls._user = env('DB_USER')
-            cls._password = env('DB_PASSWORD')
-            cls._host = env('DB_HOST')
-            cls._port = env('DB_PORT')
+            cls._database = env('DB_NAME' + add_symbol)
+            cls._user = env('DB_USER' + add_symbol)
+            cls._password = env('DB_PASSWORD' + add_symbol)
+            cls._host = env('DB_HOST' + add_symbol)
+            cls._port = env('DB_PORT' + add_symbol)
             cls._initial_schema = 'public'
         return cls._instance
 
