@@ -23,10 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.11' 
-        cache: 'pip' # caching pip dependencies
-    - run: pip install -r ./webapp/requirements.txt
-    - name: run unittests
-      run: python -m unittest ./webapp/tests/test_api_status.py
+    - name: Build the Docker image
+      run: docker compose -f test_docker-compose.yml
+    - name: Run container
+      run: docker compose up -f test_docker-compose.yml -d
