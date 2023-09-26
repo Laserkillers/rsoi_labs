@@ -21,9 +21,21 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    needs: [ build ]
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: docker compose -f test_docker-compose.yml
     - name: Run container
       run: docker compose up -d
+      
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [ test ]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Trigger deploy via Render API
+      env:
+        deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      run:
+          curl "$deploy_url"
