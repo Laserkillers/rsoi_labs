@@ -35,6 +35,7 @@ class StatusAppTests(unittest.TestCase):
 
         with psycopg2.connect(**cls.postgresql.dsn()) as conn:
             with conn.cursor() as cursor:
+                raise NotImplementedError(Path(os.getcwd()))
                 path_to_queries = Path(os.getcwd()).parent.parent / 'migrations'
                 for filename in os.listdir(path_to_queries):
                     with open(path_to_queries / filename) as file:
