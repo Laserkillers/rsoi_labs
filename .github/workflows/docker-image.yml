@@ -22,11 +22,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Install python
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      # - name: Install postgreSQL
-      - name: Run tests
-        run: python -m unittest ./webapp/tests/test_api_status.py
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11' 
+    - run: python my_script.py
