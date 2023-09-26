@@ -25,7 +25,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build and run tests the Docker image
-      run: docker-compose -f test_docker-compose.yml up --build --abort-on-container-exit --exit-code-from app
+      run: docker-compose -f test_docker-compose.yml up --build --abort-on-container-exit --exit-code-from flask_web
       
   deploy:
     runs-on: ubuntu-latest
