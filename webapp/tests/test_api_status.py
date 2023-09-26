@@ -74,7 +74,7 @@ class StatusAppTests(unittest.TestCase):
         res = self.app.get(self.person_mapping)
         all_entities = json.loads(res.data)
         for entity in all_entities:
-            self.app.delete(self.app.delete(self.person_mapping + f"/{entity['id']}"))
+            self.app.delete(self.person_mapping + f"/{entity['id']}")
         initial_len = 0
 
         res = self.app.post(self.person_mapping, data=test_entity)
