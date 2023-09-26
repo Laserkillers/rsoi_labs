@@ -1,0 +1,1 @@
+INSERT INTO person (name, age, address, work) VALUES ('Alex', 22, 'bmstu', 'rtl');

@@ -1,0 +1,58 @@
+version: '1.0'
+
+services:
+  flask_web:
+    image: lab_1
+    container_name: lab_1_container
+    build: ./webapp/
+    command: gunicorn --bind 0.0.0.0:5000 start:app
+    restart: unless-stopped
+    volumes:
+      - ./webapp/:/usr/src/app/
+    ports:
+      - 5000:5000
+    env_file:
+      - ./webapp/.env.dev
+    networks:
+      - backend
+    depends_on:
+      - db
+
+  db:
+    env_file: ./.env-postgresql
+    container_name: postgres_container
+    image: postgres:14
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./migrations/:/docker-entrypoint-initdb.d/
+    ports:
+      - 5432:5432
+    restart: unless-stopped
+    networks:
+      - backend
+
+  pgadmin:
+    image: dpage/pgadmin4:4.23
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_LISTEN_PORT: 80
+    ports:
+      - 15432:80
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    depends_on:
+      - db
+    networks:
+      - backend
+
+volumes:
+  db:
+    driver: local
+  pgadmin:
+    driver: local
+
+
+networks:
+  backend:
+    driver: bridge
