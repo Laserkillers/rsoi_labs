@@ -28,32 +28,33 @@ class StatusAppTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        pass
         # Generate Postgresql class which shares the generated database
-        cls.Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=True)
-        cls.postgresql = cls.Postgresql()
-        modify_env(cls.postgresql.dsn())
-
-        with psycopg2.connect(**cls.postgresql.dsn()) as conn:
-            with conn.cursor() as cursor:
-
-                if Path(os.getcwd()).name != 'tests':
-                    path_to_queries = Path(os.getcwd()) / 'migrations'
-                else:
-                    path_to_queries = Path(os.getcwd()).parent.parent / 'migrations'
-
-                for filename in os.listdir(path_to_queries):
-                    with open(path_to_queries / filename) as file:
-                        if filename.startswith('fill'):
-                            continue
-                        query = ''.join(file.readlines())
-                        cursor.execute(query)
-            conn.commit()
+        # cls.Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=True)
+        # cls.postgresql = cls.Postgresql()
+        # modify_env(cls.postgresql.dsn())
+        #
+        # with psycopg2.connect(**cls.postgresql.dsn()) as conn:
+        #     with conn.cursor() as cursor:
+        #
+        #         if Path(os.getcwd()).name != 'tests':
+        #             path_to_queries = Path(os.getcwd()) / 'migrations'
+        #         else:
+        #             path_to_queries = Path(os.getcwd()).parent.parent / 'migrations'
+        #
+        #         for filename in os.listdir(path_to_queries):
+        #             with open(path_to_queries / filename) as file:
+        #                 if filename.startswith('fill'):
+        #                     continue
+        #                 query = ''.join(file.readlines())
+        #                 cursor.execute(query)
+        #     conn.commit()
 
     def setUp(self) -> None:
         # path = Path(os.getcwd()).parent
         from src import ProgramConfiguration, routes, ServerConfiguration
         self.app = ServerConfiguration('gunicorn').app
-        self.app.config['TESTING'] = True
+        # self.app.config['TESTING'] = True
         self.app.register_blueprint(routes)
         self.app = self.app.test_client()
 
@@ -70,6 +71,10 @@ class StatusAppTests(unittest.TestCase):
             'address': 'test_adress',
             'work': 'test_work'
         }
+        res = self.app.get(self.person_mapping)
+        all_entities = json.loads(res.data)
+        initial_len = len(all_entities)
+
         res = self.app.post(self.person_mapping, data=test_entity)
 
         self.assertEqual(
@@ -82,7 +87,7 @@ class StatusAppTests(unittest.TestCase):
         res = self.app.get(self.person_mapping)
         all_entities = json.loads(res.data)
 
-        self.assertEqual(1, len(all_entities), f'Count entities not same')
+        self.assertEqual(1 + initial_len, len(all_entities), f'Count entities not same')
         all_entities[0].pop('id')
         self.assertEqual(test_entity, all_entities[0], 'Entities not same')
 
@@ -151,8 +156,9 @@ class StatusAppTests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        cls.postgresql.stop()
-        cls.Postgresql.clear_cache()
+        pass
+        # cls.postgresql.stop()
+        # cls.Postgresql.clear_cache()
 
 
 if __name__ == '__main__':

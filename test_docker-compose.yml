@@ -1,0 +1,44 @@
+version: '1.0'
+
+services:
+  flask_web:
+    image: lab_1
+    container_name: lab_1_container
+    build: ./webapp/
+    command: python -m unittest ./tests/test_api_status.py
+#    restart: unless-stopped
+    volumes:
+      - ./webapp/:/usr/src/app/
+    ports:
+      - 5000:5000
+    env_file:
+      - ./webapp/.env.dev
+    networks:
+      - backend
+    depends_on:
+      - db
+
+  db:
+    env_file: ./.env-postgresql
+    container_name: postgres_container
+    image: postgres:14
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./migrations/:/docker-entrypoint-initdb.d/
+    ports:
+      - 5432:5432
+    restart: unless-stopped
+    networks:
+      - backend
+
+
+volumes:
+  db:
+    driver: local
+  pgadmin:
+    driver: local
+
+
+networks:
+  backend:
+    driver: bridge
