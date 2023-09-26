@@ -24,10 +24,8 @@ jobs:
     needs: [ build ]
     steps:
     - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker compose -f test_docker-compose.yml
-    - name: Run container
-      run: docker compose up -d
+    - name: Build and run tests the Docker image
+      run: docker-compose -f test_docker-compose.yml up --build --abort-on-container-exit --exit-code-from app
       
   deploy:
     runs-on: ubuntu-latest
