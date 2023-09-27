@@ -87,10 +87,14 @@ def create_new_person():
 
     person = Person.create(**request_json)
     Person.save(person)
-    return make_response(
+
+    response = make_response(
         {},
         201
     )
+    response.headers['Location'] = f'{request.host_url}/{mapping}/{person.id}'
+
+    return response
 
 
 @flask_blueprint.route(mapping + '/<person_id>', methods=['DELETE'])
