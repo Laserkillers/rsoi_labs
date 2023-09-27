@@ -92,7 +92,10 @@ def create_new_person():
         {},
         201
     )
-    response.headers['Location'] = f'{request.host_url}/{mapping}/{person.id}'
+    response.headers['Location'] = (
+            fr'{request.host_url[:-1]}'
+            + fr'{mapping}/{person.id}'.replace(r'//', r'/')
+    )
 
     return response
 
