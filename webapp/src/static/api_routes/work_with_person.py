@@ -1,4 +1,5 @@
 import json
+from playhouse.shortcuts import model_to_dict
 
 from flask import make_response, request
 
@@ -164,13 +165,12 @@ def modify_person_by_id(person_id=None):
 
     errors = {}
     not_found = 0
-    for field, f_type in required_fields.items():
+    for field, value in request_json.items():
 
-        if (value := request_json.get(field)) is None:
-            not_found += 1
-            # errors[field] = 'string' if f_type is str else 'integer'
+        if required_fields.get(field) is None:
+            errors[field] = 'Not expected'
             continue
-
+        f_type = required_fields[field]
         try:
             request_json[field] = f_type(value)
         except ValueError:
@@ -193,10 +193,11 @@ def modify_person_by_id(person_id=None):
             400
         )
 
-    for field in required_fields:
+    for field in request_json.keys():
         setattr(person, field, request_json[field])
     person.save()
+
     return make_response(
-        {"message": 'Person for ID was updated'},
+        model_to_dict(person),
         200
     )
