@@ -37,7 +37,7 @@ jobs:
       run:
           curl "$deploy_url"
     - name: Wait for deploy
-      run: sleep 90s
+      run: sleep 5m
 
   run_api_tests:
     runs-on: ubuntu-latest
