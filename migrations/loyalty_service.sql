@@ -7,3 +7,5 @@ CREATE TABLE loyalty
         CHECK (status IN ('BRONZE', 'SILVER', 'GOLD')),
     discount          INT         NOT NULL
 );
+
+INSERT INTO loyalty (id, username, reservation_count, status, discount) VALUES (1, 'Test Max', 25, 'GOLD', 10);
