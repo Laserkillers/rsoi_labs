@@ -163,10 +163,12 @@ def modify_person_by_id(person_id=None):
         request_json = json.loads(request.data)
 
     errors = {}
+    not_found = 0
     for field, f_type in required_fields.items():
 
         if (value := request_json.get(field)) is None:
-            errors[field] = 'string' if f_type is str else 'integer'
+            not_found += 1
+            # errors[field] = 'string' if f_type is str else 'integer'
             continue
 
         try:
@@ -174,7 +176,7 @@ def modify_person_by_id(person_id=None):
         except ValueError:
             errors[field] = 'string' if f_type is str else 'integer'
 
-    if len(errors.keys()) > 0:
+    if len(errors.keys()) > 0 or not_found == len(required_fields.keys()):
         return make_response({
             'message': 'Invalid data',
             'errors': {
