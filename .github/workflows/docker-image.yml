@@ -63,7 +63,7 @@ jobs:
       # Run the POSTMAN collection
       - name: Run POSTMAN collection
         run: |
-          newman run ./postman/Lab1.postman_collection.json -e ./postman/Lab1.postman_environment.json -r htmlextra --reporter-htmlextra-export testResults/htmlreport.html --reporter-htmlextra-darkTheme  > testResults/runreport1.html
+          newman run ./postman/Lab1.postman_collection.json -e ./postman/Lab1.postman_environment.json
 
       # Upload the contents of Test Results directory to workspace
       - name: Output the run Details
