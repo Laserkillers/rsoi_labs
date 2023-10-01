@@ -90,7 +90,7 @@ def get_info_about_user():
     )
 
 
-@flask_blueprint.route(base_path + '/reservations', methods=['POST'])
+@flask_blueprint.route(base_path + '/reservations', methods=['GET'])
 def get_info_about_reservations():
     user_uuid = request.headers.get('X-User-Name')
     if user_uuid is None or len(user_uuid) == 0:
@@ -237,6 +237,49 @@ def reserve_hotel():
     total_result = result_reservations.json()
     total_result['discount'] = loyalty_discount
     total_result['payment'] = result_pay
+
+    return make_response(
+        total_result,
+        200
+    )
+
+
+@flask_blueprint.route(base_path + '/reservations/<reservation_uid>', methods=['GET'])
+def get_info_about_reservation(reservation_uid=None):
+    user_uuid = request.headers.get('X-User-Name')
+
+    if user_uuid is None or len(user_uuid) == 0:
+        return make_response(
+            {'message': 'Empty header X-User-Name'},
+            400
+        )
+
+    result_reservations = requests.get(
+        f'http://reserve_service:{res_service_port}{reserve_service_path}/reservation_info/{reservation_uid}',
+        data={
+            'user_name': user_uuid
+        }
+    )
+
+    if result_reservations.status_code != 200:
+        return make_response(
+            {'message': 'Smth is incorrect'},
+            result_reservations.status_code
+        )
+
+    total_result = result_reservations.json()
+
+    result_payment = requests.get(
+        f'http://payment_service:{pay_service_port}{payment_service_path}/payment/{total_result["payment_uid"]}'
+    )
+
+    if result_reservations.status_code != 200:
+        return make_response(
+            {'message': 'Smth is incorrect'},
+            result_reservations.status_code
+        )
+
+    total_result["payment"] = result_payment.json()
 
     return make_response(
         total_result,

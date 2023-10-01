@@ -19,6 +19,12 @@ def get_all_payments():
     return make_response({}, 200)
 
 
+@flask_blueprint.route(payment_service_path + '/payment/<payment_uid>', methods=['GET'])
+def get_payment_by_id(payment_uid=None):
+    payment = Payment.get(Payment.payment_uid == payment_uid)
+    return make_response(model_to_dict(payment), 200)
+
+
 @flask_blueprint.route(payment_service_path + '/set_pay', methods=['POST'])
 def make_pay():
 
