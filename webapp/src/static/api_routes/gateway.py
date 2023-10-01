@@ -8,7 +8,7 @@ import requests
 from src.static.entities.person import Person
 
 from src.static import routes
-from . import base_path, reserve_service_path
+from . import base_path, reserve_service_path, loyalty_service_path
 
 flask_blueprint = routes
 
@@ -43,5 +43,45 @@ def get_hotels_from_service():
 
     return make_response(
         result.json(),
+        200
+    )
+
+
+@flask_blueprint.route(base_path + '/me')
+def get_info_about_user():
+    user_uuid = request.headers.get('X-User-Name')
+    if user_uuid is None or len(user_uuid) == 0:
+        return make_response(
+            {'message': 'Empty header X-User-Name'},
+            400
+        )
+
+    result_reservations = requests.get(
+        f'http://reserve_service:{res_service_port}{reserve_service_path}/user_info/{user_uuid}'
+    )
+
+    if result_reservations.status_code != 200:
+        return make_response(
+            {'message': 'Smth is incorrect'},
+            result_reservations.status_code
+        )
+
+    result_loyalty = requests.get(
+        f'http://loyalty_service:{loy_service_port}{loyalty_service_path}/user_info/{user_uuid}'
+    )
+
+    if result_reservations.status_code != 200:
+        return make_response(
+            {'message': 'Smth is incorrect'},
+            result_reservations.status_code
+        )
+
+    total_result = {
+        'reservations': result_reservations.json(),
+        'loyalty': result_loyalty.json()
+    }
+
+    return make_response(
+        total_result,
         200
     )
