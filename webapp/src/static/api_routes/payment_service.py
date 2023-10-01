@@ -6,7 +6,7 @@ from flask import make_response, request
 
 from src.static.entities.person import Person
 
-from src.static import routes, payment_service_path
+from . import routes, payment_service_path
 
 flask_blueprint = routes
 
