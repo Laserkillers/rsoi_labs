@@ -9,6 +9,7 @@ from src.static.entities.person import Person
 from src.static import routes
 from . import reserve_service_path
 from ..entities.hotels import Hotels
+from ..entities.reservation import Reservation
 
 flask_blueprint = routes
 
@@ -37,3 +38,17 @@ def get_all_hotels():
     return make_response(
         response,
         200)
+
+
+@flask_blueprint.route(reserve_service_path + '/user_info/<user_uuid>')
+def get_info_by_user_id(user_uuid=None):
+    if user_uuid is None:
+        return make_response(
+            {'message': 'Empty response'}
+        )
+    reservations = Reservation.select().join(Hotels).where(Reservation.username == user_uuid).dicts()
+    return [
+        value for value in reservations
+    ]
+    # Hotels.select().where(Hotels.)
+
