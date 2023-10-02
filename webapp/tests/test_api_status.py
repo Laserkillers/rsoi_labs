@@ -2,9 +2,11 @@ import json
 import os
 import unittest
 from io import StringIO
+from os import getenv as env
+import requests
 
-import psycopg2
-import testing.postgresql
+# import psycopg2
+# import testing.postgresql
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -24,31 +26,13 @@ def modify_env(params: dict):
 
 class StatusAppTests(unittest.TestCase):
     status_mapping = base_path + 'check_status'
-    person_mapping = base_path + 'persons'
+    res_service_port = env('RESERVE_PORT')
+    pay_service_port = env('PAYMENT_PORT')
+    loy_service_port = env('LOYALTY_PORT')
 
     @classmethod
     def setUpClass(cls) -> None:
         pass
-        # Generate Postgresql class which shares the generated database
-        # cls.Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=True)
-        # cls.postgresql = cls.Postgresql()
-        # modify_env(cls.postgresql.dsn())
-        #
-        # with psycopg2.connect(**cls.postgresql.dsn()) as conn:
-        #     with conn.cursor() as cursor:
-        #
-        #         if Path(os.getcwd()).name != 'tests':
-        #             path_to_queries = Path(os.getcwd()) / 'migrations'
-        #         else:
-        #             path_to_queries = Path(os.getcwd()).parent.parent / 'migrations'
-        #
-        #         for filename in os.listdir(path_to_queries):
-        #             with open(path_to_queries / filename) as file:
-        #                 if filename.startswith('fill'):
-        #                     continue
-        #                 query = ''.join(file.readlines())
-        #                 cursor.execute(query)
-        #     conn.commit()
 
     def setUp(self) -> None:
         # path = Path(os.getcwd()).parent
@@ -64,103 +48,45 @@ class StatusAppTests(unittest.TestCase):
         res = self.app.get(self.status_mapping)
         self.assertEqual(200, res.status_code, f'This mapping is not working: "{self.status_mapping}"')
 
-    def test_check_add_entity(self):
-        test_entity = {
-            'name': 'test',
-            'age': 0,
-            'address': 'test_adress',
-            'work': 'test_work'
-        }
-        res = self.app.get(self.person_mapping)
-        all_entities = json.loads(res.data)
-        for entity in all_entities:
-            self.app.delete(self.person_mapping + f"/{entity['id']}")
-        initial_len = 0
+    def test_services_running(self):
+        services_info = [
+            ('gateway', 8080),
+            ('reserve_service', self.res_service_port),
+            ('payment_service', self.pay_service_port),
+            ('loyalty_service', self.loy_service_port)
+        ]
+        for body, port in services_info:
+            try:
+                res = requests.get('http://' + body + ':' + str(port) + '/manage/health')
+            except ConnectionError:
+                self.assertEqual(200, 500, f'Service {body} returned False')
 
-        res = self.app.post(self.person_mapping, data=test_entity)
+    def test_get_hotel_working(self):
+        api_map = 'hotels'
+        res = self.app.get(base_path + api_map)
+        self.assertEqual(200, res.status_code, f'This mapping is not working: "{base_path + api_map}"')
+        return
 
-        self.assertEqual(
-            201,
-            res.status_code,
-            f'Add entity is not working: "{self.status_mapping}". '
-            f'Status code: {res.status_code}.'
-            f'Request body: {res.data}')
+    def test_get_user_info(self):
+        api_map = 'me'
+        res = requests.get('http://gateway:8080' + base_path + api_map, headers={'X-User-Name': 'Test Max'})
+        # res = self.app.get(base_path + api_map)
+        self.assertEqual(200, res.status_code, f'This mapping is not working: "{base_path + api_map}"')
 
-        res = self.app.get(self.person_mapping)
-        all_entities = json.loads(res.data)
+    def test_get_loy_info(self):
+        api_map = 'api/loyalty/user_info'
+        http_map = f'http://loyalty_service:{self.loy_service_port}/{api_map}/Test Max'
+        res = requests.get(http_map)
+        self.assertEqual(200, res.status_code, f'This mapping is not working: "{http_map}"')
 
-        self.assertEqual(1 + initial_len, len(all_entities), f'Count entities not same')
-        all_entities[0].pop('id')
-        self.assertEqual(test_entity, all_entities[0], 'Entities not same')
-
-    def test_check_delete_entity(self):
-        test_entity = {
-            'name': 'test',
-            'age': 0,
-            'address': 'test_adress',
-            'work': 'test_work'
-        }
-        self.app.post(self.person_mapping, data=test_entity)
-
-        res = self.app.get(self.person_mapping)
-        all_entities = json.loads(res.data)
-        entity_id = all_entities[0].pop('id')
-        prev_len = len(all_entities)
-        res = self.app.delete(self.person_mapping + f"/{entity_id}")
-
-        self.assertEqual(204, res.status_code, f'Status code is incorrect')
-
-        res = self.app.get(self.person_mapping)
-        all_entities = json.loads(res.data)
-        self.assertEqual(prev_len - 1, len(all_entities), f"Entity dont deleted")
-
-    def test_check_update_entity(self):
-        test_entity = {
-            'name': 'test',
-            'age': 0,
-            'address': 'test_adress',
-            'work': 'test_work'
-        }
-        self.app.post(self.person_mapping, data=test_entity)
-        res = self.app.get(self.person_mapping)
-        all_entities = json.loads(res.data)
-        entity_id = all_entities[0].pop('id')
-
-        changed_entity = test_entity.copy()
-        changed_entity['age'] = 20
-        res = self.app.patch(self.person_mapping + f"/{entity_id}", data=changed_entity)
-        self.assertEqual(200, res.status_code)
-
-        res = self.app.get(self.person_mapping + f"/{entity_id}")
-        all_entities = json.loads(res.data)
-        all_entities.pop('id')
-        self.assertEqual(changed_entity, all_entities, 'Entity doesnt changed')
-
-    def test_get_all_entities(self):
-        test_entity = {
-            'name': 'test',
-            'age': 0,
-            'address': 'test_adress',
-            'work': 'test_work'
-        }
-        time_repeat = 5
-        res = self.app.get(self.person_mapping)
-        all_entities = json.loads(res.data)
-        initial_len = len(all_entities)
-        for i in range(time_repeat):
-            res = self.app.post(self.person_mapping, data=test_entity)
-            self.assertEqual(201, res.status_code)
-
-        res = self.app.get(self.person_mapping)
-        all_entities = json.loads(res.data)
-        self.assertEqual(time_repeat + initial_len, len(all_entities), 'Some entities is missing')
-
+    def test_get_reservations_info(self):
+        api_map = 'reservations'
+        res = requests.get(f'http://gateway:8080{base_path}{api_map}', headers={'X-User-Name': 'Test Max'})
+        self.assertEqual(200, res.status_code, f'This mapping is not working: "{base_path + api_map}"')
 
     @classmethod
     def tearDownClass(cls) -> None:
         pass
-        # cls.postgresql.stop()
-        # cls.Postgresql.clear_cache()
 
 
 if __name__ == '__main__':
