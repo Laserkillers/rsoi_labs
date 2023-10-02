@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 
+from dateutil import parser
 from playhouse.shortcuts import model_to_dict
 from os import getenv as env
 from uuid import uuid4
@@ -31,6 +32,9 @@ def get_all_hotels():
 
     result = result[((page - 1) * size):(page * size)]
 
+    for value in result:
+        value['hotelUid'] = value['hotel_uid']
+
     response = {
         "page": page,
         "pageSize": size,
@@ -53,10 +57,27 @@ def get_info_by_user_id(user_uuid=None):
     reservations = Reservation.select().join(Hotels).where(Reservation.username == user_uuid).dicts()
     result = []
     for reservation in reservations:
-        hotel = Hotels.get(Hotels.id == reservation.id)
+        hotel = Hotels.get(Hotels.id == reservation['hotel_id'])
 
-        data = model_to_dict(reservation)
+        data = reservation
         data['hotel'] = model_to_dict(hotel)
+
+        data['reservationUid'] = data['reservation_uid']
+        data['startDate'] = data['start_date'].strftime("%Y-%m-%d")
+        data['endDate'] = data['end_data'].strftime("%Y-%m-%d")
+        data['hotel']['hotelUid'] = data['hotel']['hotel_uid']
+        data['hotel']['fullAddress'] = (
+                data['hotel']['country']
+                + ', ' + data['hotel']['city']
+                + ', ' + data['hotel']['address']
+        )
+
+        del (
+            data['start_date'],
+            data['end_data'],
+            data['reservation_uid'],
+            data['hotel']['hotel_uid']
+        )
 
         result.append(
             data
@@ -135,6 +156,23 @@ def get_reservation_info(reservation_uid=None):
     hotel = Hotels.get(Hotels.id == hotel_id)
 
     reservation['hotel'] = model_to_dict(hotel)
+
+    reservation['reservationUid'] = reservation['reservation_uid']
+    reservation['startDate'] = reservation['start_date'].strftime("%Y-%m-%d")
+    reservation['endDate'] = reservation['end_data'].strftime("%Y-%m-%d")
+    reservation['hotel']['hotelUid'] = reservation['hotel']['hotel_uid']
+    reservation['hotel']['fullAddress'] = (
+            reservation['hotel']['country']
+            + ', ' + reservation['hotel']['city']
+            + ', ' + reservation['hotel']['address']
+    )
+
+    del (
+        reservation['start_date'],
+        reservation['end_data'],
+        reservation['reservation_uid'],
+        reservation['hotel']['hotel_uid']
+    )
 
     return make_response(reservation, 200)
 

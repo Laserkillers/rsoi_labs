@@ -69,6 +69,8 @@ def get_info_about_user():
             result_reservations.status_code
         )
 
+    result_reservations = result_reservations.json()
+
     result_loyalty = requests.get(
         f'http://loyalty_service:{loy_service_port}{loyalty_service_path}/user_info/{user_uuid}'
     )
@@ -79,8 +81,22 @@ def get_info_about_user():
             result_loyalty.status_code
         )
 
+    for reservation in result_reservations:
+        result_payment = requests.get(
+            f'http://payment_service:{pay_service_port}{payment_service_path}/payment/{reservation["payment_uid"]}'
+        )
+
+        if result_payment.status_code != 200:
+            return make_response(
+                {'message': 'Smth is incorrect'},
+                result_payment.status_code
+            )
+        result_payment = result_payment.json()
+        reservation['payment'] = result_payment
+        del reservation['payment_uid']
+
     total_result = {
-        'reservations': result_reservations.json(),
+        'reservations': result_reservations,
         'loyalty': result_loyalty.json()
     }
 
@@ -109,17 +125,33 @@ def get_info_about_reservations():
             result_reservations.status_code
         )
 
-    total_result = {
-        'reservations': result_reservations.json()
-    }
+    result_reservations = result_reservations.json()
 
+    for reservation in result_reservations:
+
+        result_payment = requests.get(
+            f'http://payment_service:{pay_service_port}{payment_service_path}/payment/{reservation["payment_uid"]}'
+        )
+
+        if result_payment.status_code != 200:
+            return make_response(
+                {'message': 'Smth is incorrect'},
+                result_payment.status_code
+            )
+        result_payment = result_payment.json()
+
+        reservation['payment'] = result_payment
+        del reservation['payment_uid']
+
+
+    # result_reservations['']
     return make_response(
-        total_result,
+        result_reservations,
         200
     )
 
 
-@flask_blueprint.route(base_path + '/reserve_hotel', methods=['POST'])
+@flask_blueprint.route(base_path + '/reservations', methods=['POST'])
 def reserve_hotel():
     user_uuid = request.headers.get('X-User-Name')
     if user_uuid is None or len(user_uuid) == 0:
@@ -234,9 +266,26 @@ def reserve_hotel():
             result_reservations.status_code
         )
 
+    result_loyalty = requests.patch(
+        f'http://loyalty_service:{loy_service_port}{loyalty_service_path}/increment_count_reservations/{user_uuid}'
+    )
+
+    if result_loyalty.status_code != 202:
+        return make_response(
+            {'message': 'Loyalty service returned'},
+            result_loyalty.status_code
+        )
+
     total_result = result_reservations.json()
     total_result['discount'] = loyalty_discount
     total_result['payment'] = result_pay
+
+    total_result['hotelUid'] = total_result['hotel_id']['hotel_uid']
+    total_result['reservationUid'] = total_result['reservation_uid']
+    del total_result['reservation_uid']
+    total_result['startDate'] = total_result['start_date']
+    total_result['endDate'] = total_result['end_data']
+    del total_result['start_date'], total_result['end_data']
 
     return make_response(
         total_result,
@@ -343,7 +392,47 @@ def delete_reservation(reservation_uid=None):
             result_reservation.status_code
         )
 
+    result_loyalty = requests.patch(
+        f'http://loyalty_service:{loy_service_port}{loyalty_service_path}/decrement_count_reservations/{user_uuid}'
+    )
+
+    if result_loyalty.status_code != 202:
+        return make_response(
+            {'message': 'Loyalty service returned'},
+            result_loyalty.status_code
+        )
+
     return make_response(
         '',
         204
     )
+
+
+@flask_blueprint.route(base_path + '/loyalty', methods=['GET'])
+def get_info_about_loyalty(reservation_uid=None):
+    user_uuid = request.headers.get('X-User-Name')
+
+    if user_uuid is None or len(user_uuid) == 0:
+        return make_response(
+            {'message': 'Empty header X-User-Name'},
+            400
+        )
+
+    result_loyalty = requests.get(
+        f'http://loyalty_service:{loy_service_port}{loyalty_service_path}/user_info/{user_uuid}'
+    )
+
+    if result_loyalty.status_code != 200:
+        return make_response(
+            {'message': 'Smth is incorrect'},
+            result_loyalty.status_code
+        )
+
+    result_loyalty = result_loyalty.json()
+
+    return make_response(
+        result_loyalty,
+        200
+    )
+
+
