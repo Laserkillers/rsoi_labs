@@ -138,3 +138,17 @@ def get_reservation_info(reservation_uid=None):
 
     return make_response(reservation, 200)
 
+
+@flask_blueprint.route(reserve_service_path + '/reservation_info/<reservation_uid>', methods=['DELETE'])
+def delete_reservation_service(reservation_uid=None):
+    if len(request.data) != 0:
+        request_json = json.loads(request.data)
+    else:
+        request_json = request.form.to_dict()
+
+    reservation = Reservation.get(Reservation.reservation_uid == reservation_uid)
+
+    reservation.status = 'CANCELED'
+    reservation.save()
+
+    return make_response('', 204)

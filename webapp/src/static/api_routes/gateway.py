@@ -285,3 +285,65 @@ def get_info_about_reservation(reservation_uid=None):
         total_result,
         200
     )
+
+
+@flask_blueprint.route(base_path + '/reservations/<reservation_uid>', methods=['DELETE'])
+def delete_reservation(reservation_uid=None):
+    user_uuid = request.headers.get('X-User-Name')
+
+    if user_uuid is None or len(user_uuid) == 0:
+        return make_response(
+            {'message': 'Empty header X-User-Name'},
+            400
+        )
+
+    result_reservations = requests.get(
+        f'http://reserve_service:{res_service_port}{reserve_service_path}/reservation_info/{reservation_uid}',
+        data={
+            'user_name': user_uuid
+        }
+    )
+
+    if result_reservations.status_code != 200:
+        return make_response(
+            {'message': 'Smth is incorrect'},
+            result_reservations.status_code
+        )
+
+    result_reservations = result_reservations.json()
+
+    if len(result_reservations.keys()) == 0:
+        return make_response(
+            {'message': 'Reservation not found'},
+            404
+        )
+
+    # payment_uid = result_reservations['payment_uid']
+
+    result_payment = requests.delete(
+        f'http://payment_service:{pay_service_port}{payment_service_path}/payment/{result_reservations["payment_uid"]}'
+    )
+
+    if result_payment.status_code != 204:
+        return make_response(
+            {'message': 'Smth is incorrect'},
+            result_payment.status_code
+        )
+
+    result_reservation = requests.delete(
+        f'http://reserve_service:{res_service_port}{reserve_service_path}/reservation_info/{reservation_uid}',
+        data={
+            'user_name': user_uuid
+        }
+    )
+
+    if result_reservation.status_code != 204:
+        return make_response(
+            {'message': 'Smth is incorrect'},
+            result_reservation.status_code
+        )
+
+    return make_response(
+        '',
+        204
+    )

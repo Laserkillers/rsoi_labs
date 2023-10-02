@@ -25,6 +25,14 @@ def get_payment_by_id(payment_uid=None):
     return make_response(model_to_dict(payment), 200)
 
 
+@flask_blueprint.route(payment_service_path + '/payment/<payment_uid>', methods=['DELETE'])
+def delete_payment_by_id(payment_uid=None):
+    payment = Payment.get(Payment.payment_uid == payment_uid)
+    payment.status = 'CANCELED'
+    payment.save()
+    return make_response('', 204)
+
+
 @flask_blueprint.route(payment_service_path + '/set_pay', methods=['POST'])
 def make_pay():
 
