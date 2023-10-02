@@ -11,3 +11,10 @@ def send_message():
     return {
         'status': 'working'
     }
+
+@flask_blueprint.route('/manage/health')
+def check_status():
+    return {
+        'status': 'working'
+    }
+
