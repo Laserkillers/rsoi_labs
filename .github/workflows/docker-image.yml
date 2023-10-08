@@ -83,7 +83,7 @@ jobs:
     needs: [ deploy-gateway, deploy-reservation-service, deploy-loyalty-service, deploy-payment-service]
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      # - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       # INstall Node on the runner
       - name: Install Node
