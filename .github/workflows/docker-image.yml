@@ -15,10 +15,10 @@ jobs:
         fetch-depth: 0
     - name: Build the Docker image
       run: docker compose build
-    - name: Run container
-      run: docker compose up -d
-    - name: Check loading services
-      run: ./scripts/wait-script.sh
+    - name: Run container and check loading services
+      run: | 
+        docker compose up -d
+        ./scripts/wait-script.sh
       env:
         WAIT_PORTS: 8080,8070,8060,8050
 
