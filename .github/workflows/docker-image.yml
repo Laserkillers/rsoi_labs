@@ -19,6 +19,7 @@ jobs:
       run: | 
         docker compose up -d
         chmod +x ./scripts/wait-script.sh
+        chmod +x ./scripts/wait-for.sh
         ./scripts/wait-script.sh
       env:
         WAIT_PORTS: 8080,8070,8060,8050
