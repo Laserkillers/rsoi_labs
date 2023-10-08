@@ -14,8 +14,16 @@ flask_blueprint = routes
 # mapping = base_path + '/hotels'
 
 res_service_port = env('RESERVE_PORT')
+if res_service_port is None:
+    res_service_port = ''
+
 pay_service_port = env('PAYMENT_PORT')
+if pay_service_port is None:
+    pay_service_port = ''
+
 loy_service_port = env('LOYALTY_PORT')
+if loy_service_port is None:
+    loy_service_port = ''
 
 reserve_service = env('RESERVATION_SERVICE')
 if reserve_service is None:
@@ -42,7 +50,7 @@ def get_hotels_from_service():
         request_json = json.loads(request.data)
 
     result = requests.get(
-        f'{reserve_service}:{res_service_port}{reserve_service_path}/hotels',
+        f'{reserve_service}{res_service_port}{reserve_service_path}/hotels',
         params={'page': page, 'size': size}
     )
 
@@ -68,7 +76,7 @@ def get_info_about_user():
         )
 
     result_reservations = requests.get(
-        f'{reserve_service}:{res_service_port}{reserve_service_path}/user_info/{user_uuid}'
+        f'{reserve_service}{res_service_port}{reserve_service_path}/user_info/{user_uuid}'
     )
 
     if result_reservations.status_code != 200:
@@ -80,7 +88,7 @@ def get_info_about_user():
     result_reservations = result_reservations.json()
 
     result_loyalty = requests.get(
-        f'{loyalty_service}:{loy_service_port}{loyalty_service_path}/user_info/{user_uuid}'
+        f'{loyalty_service}{loy_service_port}{loyalty_service_path}/user_info/{user_uuid}'
     )
 
     if result_loyalty.status_code != 200:
@@ -91,7 +99,7 @@ def get_info_about_user():
 
     for reservation in result_reservations:
         result_payment = requests.get(
-            f'{payment_service}:{pay_service_port}{payment_service_path}/payment/{reservation["payment_uid"]}'
+            f'{payment_service}{pay_service_port}{payment_service_path}/payment/{reservation["payment_uid"]}'
         )
 
         if result_payment.status_code != 200:
@@ -124,7 +132,7 @@ def get_info_about_reservations():
         )
 
     result_reservations = requests.get(
-        f'{reserve_service}:{res_service_port}{reserve_service_path}/user_info/{user_uuid}'
+        f'{reserve_service}{res_service_port}{reserve_service_path}/user_info/{user_uuid}'
     )
 
     if result_reservations.status_code != 200:
@@ -138,7 +146,7 @@ def get_info_about_reservations():
     for reservation in result_reservations:
 
         result_payment = requests.get(
-            f'{payment_service}:{pay_service_port}{payment_service_path}/payment/{reservation["payment_uid"]}'
+            f'{payment_service}{pay_service_port}{payment_service_path}/payment/{reservation["payment_uid"]}'
         )
 
         if result_payment.status_code != 200:
@@ -211,7 +219,7 @@ def reserve_hotel():
     # Конец проверки данных
 
     result_loyalty = requests.get(
-        f'{loyalty_service}:{loy_service_port}{loyalty_service_path}/user_info/{user_uuid}'
+        f'{loyalty_service}{loy_service_port}{loyalty_service_path}/user_info/{user_uuid}'
     )
 
     if result_loyalty.status_code != 200:
@@ -223,7 +231,7 @@ def reserve_hotel():
     result_loyalty = result_loyalty.json()
 
     hotel_price = requests.get(
-        f'{reserve_service}:{res_service_port}{reserve_service_path}/hotel_price/{request_json["hotelUid"]}'
+        f'{reserve_service}{res_service_port}{reserve_service_path}/hotel_price/{request_json["hotelUid"]}'
     )
 
     if hotel_price.status_code != 200:
@@ -275,7 +283,7 @@ def reserve_hotel():
         )
 
     result_loyalty = requests.patch(
-        f'{loyalty_service}:{loy_service_port}{loyalty_service_path}/increment_count_reservations/{user_uuid}'
+        f'{loyalty_service}{loy_service_port}{loyalty_service_path}/increment_count_reservations/{user_uuid}'
     )
 
     if result_loyalty.status_code != 202:
@@ -312,7 +320,7 @@ def get_info_about_reservation(reservation_uid=None):
         )
 
     result_reservations = requests.get(
-        f'{reserve_service}:{res_service_port}{reserve_service_path}/reservation_info/{reservation_uid}',
+        f'{reserve_service}{res_service_port}{reserve_service_path}/reservation_info/{reservation_uid}',
         data={
             'user_name': user_uuid
         }
@@ -327,7 +335,7 @@ def get_info_about_reservation(reservation_uid=None):
     total_result = result_reservations.json()
 
     result_payment = requests.get(
-        f'{payment_service}:{pay_service_port}{payment_service_path}/payment/{total_result["payment_uid"]}'
+        f'{payment_service}{pay_service_port}{payment_service_path}/payment/{total_result["payment_uid"]}'
     )
 
     if result_reservations.status_code != 200:
@@ -355,7 +363,7 @@ def delete_reservation(reservation_uid=None):
         )
 
     result_reservations = requests.get(
-        f'{reserve_service}:{res_service_port}{reserve_service_path}/reservation_info/{reservation_uid}',
+        f'{reserve_service}{res_service_port}{reserve_service_path}/reservation_info/{reservation_uid}',
         data={
             'user_name': user_uuid
         }
@@ -378,7 +386,7 @@ def delete_reservation(reservation_uid=None):
     # payment_uid = result_reservations['payment_uid']
 
     result_payment = requests.delete(
-        f'{payment_service}:{pay_service_port}{payment_service_path}/payment/{result_reservations["payment_uid"]}'
+        f'{payment_service}{pay_service_port}{payment_service_path}/payment/{result_reservations["payment_uid"]}'
     )
 
     if result_payment.status_code != 204:
@@ -388,7 +396,7 @@ def delete_reservation(reservation_uid=None):
         )
 
     result_reservation = requests.delete(
-        f'{reserve_service}:{res_service_port}{reserve_service_path}/reservation_info/{reservation_uid}',
+        f'{reserve_service}{res_service_port}{reserve_service_path}/reservation_info/{reservation_uid}',
         data={
             'user_name': user_uuid
         }
@@ -401,7 +409,7 @@ def delete_reservation(reservation_uid=None):
         )
 
     result_loyalty = requests.patch(
-        f'{loyalty_service}:{loy_service_port}{loyalty_service_path}/decrement_count_reservations/{user_uuid}'
+        f'{loyalty_service}{loy_service_port}{loyalty_service_path}/decrement_count_reservations/{user_uuid}'
     )
 
     if result_loyalty.status_code != 202:
@@ -427,7 +435,7 @@ def get_info_about_loyalty(reservation_uid=None):
         )
 
     result_loyalty = requests.get(
-        f'{loyalty_service}:{loy_service_port}{loyalty_service_path}/user_info/{user_uuid}'
+        f'{loyalty_service}{loy_service_port}{loyalty_service_path}/user_info/{user_uuid}'
     )
 
     if result_loyalty.status_code != 200:
