@@ -15,9 +15,11 @@ jobs:
         fetch-depth: 0
     - name: Build the Docker image
       run: docker compose build
-    - name: Run container and check loading services
+    - name: Run container
       run: | 
         docker compose up -d
+    - name: Check loading services
+      run: |
         chmod +x ./scripts/wait-script.sh
         chmod +x ./scripts/wait-for.sh
         ./scripts/wait-script.sh
