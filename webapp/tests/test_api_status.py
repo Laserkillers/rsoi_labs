@@ -50,14 +50,14 @@ class StatusAppTests(unittest.TestCase):
 
     def test_services_running(self):
         services_info = [
-            ('gateway', 8080),
+            ('gateway', ':8080'),
             ('reserve_service', self.res_service_port),
             ('payment_service', self.pay_service_port),
             ('loyalty_service', self.loy_service_port)
         ]
         for body, port in services_info:
             try:
-                res = requests.get('http://' + body + ':' + str(port) + '/manage/health')
+                res = requests.get('http://' + body + str(port) + '/manage/health')
             except ConnectionError:
                 self.assertEqual(200, 500, f'Service {body} returned False')
 
@@ -75,7 +75,7 @@ class StatusAppTests(unittest.TestCase):
 
     def test_get_loy_info(self):
         api_map = 'api/loyalty/user_info'
-        http_map = f'http://loyalty_service:{self.loy_service_port}/{api_map}/Test Max'
+        http_map = f'http://loyalty_service{self.loy_service_port}/{api_map}/Test Max'
         res = requests.get(http_map)
         self.assertEqual(200, res.status_code, f'This mapping is not working: "{http_map}"')
 
