@@ -26,7 +26,7 @@ services:
     image: lab_2_service_gateway
     container_name: lab_2_service_gateway
     build: ./webapp/
-    command: gunicorn --bind 0.0.0.0:8080 start:app --log-level=debug
+    command: gunicorn --bind 0.0.0.0:8080 start:app --timeout 300000 --graceful-timeout 300000 --keep-alive 300000 --workers=1 --log-level=debug --worker-class gevent
 #    restart: unless-stopped
     volumes:
       - ./webapp/:/usr/src/app/
@@ -43,7 +43,7 @@ services:
     image: lab_2_service_reserve
     container_name: lab_2_service_reserve
     build: ./webapp/
-    command: gunicorn --bind 0.0.0.0:8070 start:app --log-level=debug
+    command: gunicorn --bind 0.0.0.0:8070 start:app --timeout 300000 --graceful-timeout 300000 --keep-alive 300000 --workers=1 --log-level=debug --worker-class gevent
 #    restart: unless-stopped
     volumes:
       - ./webapp/:/usr/src/app/
@@ -60,7 +60,7 @@ services:
     image: lab_2_payment_service
     container_name: lab_2_payment_service
     build: ./webapp/
-    command: gunicorn --bind 0.0.0.0:8060 start:app --log-level=debug
+    command: gunicorn --bind 0.0.0.0:8060 start:app --timeout 300000 --graceful-timeout 300000 --keep-alive 300000 --workers=1 --log-level=debug --worker-class gevent
 #    restart: unless-stopped
     volumes:
       - ./webapp/:/usr/src/app/
@@ -77,7 +77,7 @@ services:
     image: lab_2_loyalty_service
     container_name: lab_2_loyalty_service
     build: ./webapp/
-    command: gunicorn --bind 0.0.0.0:8050 start:app --log-level=debug
+    command: gunicorn --bind 0.0.0.0:8050 start:app --timeout 300000 --graceful-timeout 300000 --keep-alive 300000 --workers=1 --log-level=debug --worker-class gevent
 #    restart: unless-stopped
     volumes:
       - ./webapp/:/usr/src/app/

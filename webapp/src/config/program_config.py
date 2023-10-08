@@ -3,16 +3,12 @@ from os import getenv as env
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
-import pandas as pd
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
 import requests
 from psycopg2 import connect
-from pydantic import BaseModel, Field
-
 
 
 class ProgramConfiguration(object):
@@ -150,32 +146,12 @@ class DataBaseSettings:
             "database": self._database,
         }
 
-    def get_data_simple(self, sql_query, arguments: dict):
-        if self._engine_simple is None:
-            self._engine_simple = create_engine(self.create_connection_row())
-
-        with self._engine_simple.connect() as connection:
-            data = pd.read_sql(sql_query, connection, params=arguments)
-
-        return data
-
     @property
     def engine_hard(self):
         if self._engine_hard is None:
             self._engine_hard = connect(**self.cursor_connection_row())
         return self._engine_hard
 
-    def get_data_hard(self, sql_query: str, arguments: dict) -> pd.DataFrame:
-        if self._engine_hard is None:
-            self._engine_hard = connect(**self.cursor_connection_row())
-
-        with self._engine_hard.cursor() as cursor:
-            cursor.execute(sql_query, arguments)
-            data = cursor.fetchall()
-            columns = [x[0] for x in cursor.description]
-            self._engine_hard.rollback()
-
-        return pd.DataFrame(data, columns=columns)
 
     def create_schema(self) -> str:
         schema_name = f'temp_{datetime.now().strftime("%Y%m%d%H%M%S%f")}'

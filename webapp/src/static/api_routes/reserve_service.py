@@ -1,14 +1,9 @@
 import json
 from datetime import datetime
-
-from dateutil import parser
-from playhouse.shortcuts import model_to_dict
-from os import getenv as env
 from uuid import uuid4
 
 from flask import make_response, request
-
-from src.static.entities.person import Person
+from playhouse.shortcuts import model_to_dict
 
 from . import reserve_service_path
 from .. import routes

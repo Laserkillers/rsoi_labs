@@ -1,14 +1,10 @@
 import json
-from playhouse.shortcuts import model_to_dict
+from datetime import datetime
 from os import getenv as env
 
-from flask import make_response, request
-from uuid import uuid4
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
 import requests
-
-from src.static.entities.person import Person
+from dateutil.relativedelta import relativedelta
+from flask import make_response, request
 
 from src.static import routes
 from . import base_path, reserve_service_path, loyalty_service_path, payment_service_path

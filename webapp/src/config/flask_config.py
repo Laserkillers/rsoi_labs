@@ -1,12 +1,11 @@
 import os
-from os import getenv as env
 from pathlib import Path
 
 from flask import Flask
+
+from src.config.program_config import ProgramConfiguration
 from src.static import routes
-from src.config.program_config import ProgramConfiguration, DataBaseSettings
-# from waitress import serve
-from dotenv import load_dotenv
+
 
 
 class Config(object):

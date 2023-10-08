@@ -1,14 +1,11 @@
 import json
-from playhouse.shortcuts import model_to_dict
-from os import getenv as env
-
-from flask import make_response, request
 from uuid import uuid4
 
-from src.static.entities.person import Person
+from flask import make_response, request
+from playhouse.shortcuts import model_to_dict
 
-from .. import routes
 from . import payment_service_path
+from .. import routes
 from ..entities.payment import Payment
 
 flask_blueprint = routes

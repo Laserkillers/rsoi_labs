@@ -1,14 +1,9 @@
-import json
+from flask import make_response
 from playhouse.shortcuts import model_to_dict
-from os import getenv as env
-
-from flask import make_response, request
 
 from src.static.entities.loyalty import Loyalty
-from src.static.entities.person import Person
-
-from .. import routes
 from . import loyalty_service_path
+from .. import routes
 
 flask_blueprint = routes
 
