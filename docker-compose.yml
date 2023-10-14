@@ -1,6 +1,18 @@
 version: '1.0'
 
 services:
+#  redis:
+#    image: redis:latest
+#    build: ./redis-docker
+#    ports:
+#      - 6379:6379
+#    volumes:
+#      - ./redis-docker:/usr/local/etc/redis/redis.conf
+#      - ./redis-docker/redis-data:/var/lib/redis
+#    environment:
+#      - REDIS_REPLICATION_MODE=master
+#    command: redis-server
+
   gateway:
     image: lab_2_service_gateway
     container_name: lab_2_service_gateway
@@ -17,6 +29,7 @@ services:
       - backend
     depends_on:
       - db
+#      - redis
 
   reserve_service:
     image: lab_2_service_reserve
@@ -34,6 +47,7 @@ services:
       - backend
     depends_on:
       - db
+#      - redis
 
   payment_service:
     image: lab_2_payment_service
@@ -51,6 +65,7 @@ services:
       - backend
     depends_on:
       - db
+#      - redis
 
   loyalty_service:
     image: lab_2_loyalty_service
@@ -68,6 +83,7 @@ services:
       - backend
     depends_on:
       - db
+#      - redis
 
   db:
     env_file: ./.env-postgresql
