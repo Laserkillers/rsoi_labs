@@ -15,13 +15,13 @@ class MyCircuitBreaker(circuitbreaker.CircuitBreaker):
 
 
 def get_data_with_handle(
-        func: Callable, *args, **kwargs) -> dict:
+        func: Callable[[], tuple[dict | list, int]], *args, **kwargs) -> dict:
+    ret_info = {}
     try:
-        data = func(*args, **kwargs)
-        status_code = data.status_code
-        data = data.json()
-        data['status_code'] = status_code
-        data['success'] = True
+        data, status_code = func(*args, **kwargs)
+        ret_info['data'] = data
+        ret_info['status_code'] = status_code
+        ret_info['success'] = True
     except circuitbreaker.CircuitBreakerError as e:
         return {
             "status_code": 503,
@@ -34,4 +34,4 @@ def get_data_with_handle(
             'success': False,
             "message": f"Failed to get data: {e}"
         }
-    return data
+    return ret_info
