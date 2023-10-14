@@ -11,6 +11,7 @@ app = orig_app
 
 app_config = ProgramConfiguration()
 
+
 @app.route("/")
 def start_page():
     return jsonify(hello="world", first_message="test")
