@@ -435,14 +435,11 @@ def get_info_about_loyalty(reservation_uid=None):
         user_uuid
     )
 
-    if not result_loyalty['success'] and result_loyalty['status_code'] == 503:
+    if not result_loyalty['success']:
         return make_response(
-            result_loyalty,
-            result_loyalty['status_code']
+            {'message': 'Loyalty Service unavailable'},
+            503
         )
-
-    if result_loyalty['status_code'] == 500:
-        result_loyalty = {}
     else:
         result_loyalty = result_loyalty['data']
 
