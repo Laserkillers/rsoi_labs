@@ -358,7 +358,8 @@ def get_info_about_reservation(reservation_uid=None):
         if result_payment['status_code'] == 500:
             result_payment = {}
         else:
-            result_payment = result_reservations['data']
+            print(result_payment)
+            result_payment = result_payment['data']
 
     total_result["payment"] = result_payment
 
@@ -389,6 +390,8 @@ def delete_reservation(reservation_uid=None):
             result_reservations,
             result_reservations['status_code']
         )
+    else:
+        result_reservations = result_reservations['data']
 
     if len(result_reservations.keys()) == 0:
         return make_response(

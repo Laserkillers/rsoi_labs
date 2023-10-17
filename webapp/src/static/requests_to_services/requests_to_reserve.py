@@ -80,6 +80,6 @@ class RequestsToReserveService:
         if not result_reservation.ok:
             raise requests.ConnectionError(result_reservation.status_code)
 
-        return result_reservation.json(), result_reservation.status_code
+        return '', result_reservation.status_code
 
 

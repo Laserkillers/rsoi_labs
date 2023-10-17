@@ -43,7 +43,7 @@ class RequestsToPaymentService:
         if not result_payment.ok:
             raise requests.ConnectionError(result_payment.status_code)
 
-        return result_payment.json(), result_payment.status_code
+        return '', result_payment.status_code
 
 
 
