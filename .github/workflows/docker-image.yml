@@ -20,16 +20,16 @@ jobs:
         docker compose up -d
     - name: Check loading services
       run: |
-        chmod +x ./scripts/wait-script.sh
-        chmod +x ./scripts/wait-for.sh
-        chmod +x ./scripts/test-script.sh
+        chmod +x ./scripts/wait-script
+        chmod +x ./scripts/wait-for
+        chmod +x ./scripts/test-script
         ./scripts/wait-script.sh.sh
       env:
         WAIT_PORTS: 8080,8070,8060,8050
 
     - name: Check service dropout on 8070 port
       run: |
-        ./scripts/test-script.sh
+        ./scripts/test-script
       env:
         VARIANT: v2
         SERVICE_NAME: reserve_service
@@ -37,7 +37,7 @@ jobs:
 
     - name: Check service dropout on 8060 port
       run: |
-        ./scripts/test-script.sh
+        ./scripts/test-script
       env:
         VARIANT: v2
         SERVICE_NAME: payment_service
@@ -45,7 +45,7 @@ jobs:
 
     - name: Check service dropout on 8050 port
       run: |
-        ./scripts/test-script.sh
+        ./scripts/test-script
       env:
         VARIANT: v2
         SERVICE_NAME: loyalty_service
