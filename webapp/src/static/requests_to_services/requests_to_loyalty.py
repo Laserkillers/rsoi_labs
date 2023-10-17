@@ -18,7 +18,7 @@ class RequestsToLoyaltyService:
         )
 
         if not result.ok:
-            raise requests.ConnectionError(result.status_code)
+            raise requests.ConnectionError({'message': 'Loyalty Service unavailable'})
 
         return result.json(), result.status_code
 
