@@ -1,6 +1,7 @@
 import json
 from _socket import gaierror
 from datetime import datetime
+from time import sleep
 from functools import wraps
 from os import getenv as env
 from typing import Callable, Any
@@ -10,14 +11,17 @@ import requests
 
 from dateutil.relativedelta import relativedelta
 from flask import make_response, request
+# from flask_executor import Executor
 from urllib3.exceptions import NameResolutionError, MaxRetryError
 
 from src.static import routes
+from src.config.program_config import ProgramConfiguration
 from . import base_path
 from ..requests_to_services import get_data_with_handle
 from ..requests_to_services.requests_to_loyalty import RequestsToLoyaltyService
 from ..requests_to_services.requests_to_payment import RequestsToPaymentService
 from ..requests_to_services.requests_to_reserve import RequestsToReserveService
+
 
 flask_blueprint = routes
 
@@ -409,16 +413,35 @@ def delete_reservation(reservation_uid=None):
         user_uuid
     )
 
-    result_reservation = get_data_with_handle(
-        loyalty_service_handle.decrement_count_reservations,
-        user_uuid
-    )
+    ProgramConfiguration().set_executor(decrement_count_reservations, user_uuid)
+
+    # result_reservation = get_data_with_handle(
+    #     loyalty_service_handle.decrement_count_reservations,
+    #     user_uuid
+    # )
 
     return make_response(
         '',
         204
     )
+# @app.route("/start_background_task/<user_uuid>")
+# def start_background_task(user_uuid: str):
+#     executor.submit(decrement_count_reservations, user_uuid)
 
+
+def decrement_count_reservations(user_uuid: str):
+    attempts_count = 0
+    while True:
+        result_reservation = get_data_with_handle(
+            loyalty_service_handle.decrement_count_reservations,
+            user_uuid
+        )
+        if result_reservation['success']:
+            break
+        print(f"Attempt_{attempts_count} to decrement count reservations")
+        attempts_count += 1
+        sleep(int(env('DELAY_BTW_REQUEST')))
+    return
 
 @flask_blueprint.route(base_path + '/loyalty', methods=['GET'])
 def get_info_about_loyalty(reservation_uid=None):

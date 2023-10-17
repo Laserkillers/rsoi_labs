@@ -31,11 +31,19 @@ class ProgramConfiguration(object):
             # cls.__time_get_token = datetime.now()
         return cls._instance
 
-    def __init__(self):
+    def __init__(self, executor=None):
+        if executor is None:
+            return
         self.__headers = {
             'Authorization': self.__access_token
         }
         self.__payload = {}
+        self.__executor = executor
+
+    def set_executor(self, *args, **kwargs):
+        self.__executor.submit(*args, **kwargs)
+        return
+
 
     def update_authorization_token(self):
         if (datetime.now() - self.__time_get_token).seconds / 60 >= 60:
