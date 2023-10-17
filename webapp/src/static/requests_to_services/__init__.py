@@ -26,12 +26,12 @@ def get_data_with_handle(
         return {
             "status_code": 503,
             'success': False,
-            "message": f"Circuit breaker active: {e}"
+            "message": f"{e}"
         }
     except requests.exceptions.ConnectionError as e:
         return {
             "status_code": 500,
             'success': False,
-            "message": f"Failed to get data: {e}"
+            "message": f"{e}"
         }
     return ret_info
