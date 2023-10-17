@@ -437,6 +437,7 @@ def decrement_count_reservations(user_uuid: str):
             user_uuid
         )
         if result_reservation['success']:
+            print(f"Attempt_{attempts_count} is successes")
             break
         print(f"Attempt_{attempts_count} to decrement count reservations")
         attempts_count += 1
