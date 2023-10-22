@@ -27,6 +27,12 @@ jobs:
         ./scripts/wait-script.sh
       env:
         WAIT_PORTS: 8080,8070,8060,8050
+    - name: Pull docker image to docker registry
+      env:
+        registry_token: ${{ secrets.REGISTRY_PULL_TOKEN }}
+      run: |
+        echo $registry_token | docker login ghcr.io -u Laserkillers --password-stdin
+        docker push ghcr.io/Laserkillers/rsoi_labs:latest
 
 #    - name: Check service dropout on 8070 port
 #      run: |
