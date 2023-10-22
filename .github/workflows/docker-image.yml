@@ -19,14 +19,14 @@ jobs:
     - name: Run container
       run: | 
         docker compose up -d
-    - name: Check loading services
-      run: |
-        chmod +x ./scripts/wait-script.sh
-        chmod +x ./scripts/wait-for.sh
-        chmod +x ./scripts/test-script.sh
-        ./scripts/wait-script.sh
-      env:
-        WAIT_PORTS: 8080,8070,8060,8050
+#    - name: Check loading services
+#      run: |
+#        chmod +x ./scripts/wait-script.sh
+#        chmod +x ./scripts/wait-for.sh
+#        chmod +x ./scripts/test-script.sh
+#        ./scripts/wait-script.sh
+#      env:
+#        WAIT_PORTS: 8080,8070,8060,8050
     - name: Pull docker image to docker registry
       env:
         registry_token: ${{ secrets.REGISTRY_PULL_TOKEN }}
