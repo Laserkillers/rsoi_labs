@@ -32,10 +32,15 @@ jobs:
         registry_token: ${{ secrets.REGISTRY_PULL_TOKEN }}
       run: |
         echo $registry_token | docker login ghcr.io -u laserkillers --password-stdin
-        docker push lab_2_service_gateway
-        docker push lab_2_service_reserve
-        docker push lab_2_payment_service
-        docker push lab_2_loyalty_service
+        docker tag lab_2_service_gateway ghcr.io/laserkillers/rsoi_labs/lab_2_service_gateway:latest
+        docker tag lab_2_service_reserve ghcr.io/laserkillers/rsoi_labs/lab_2_service_reserve:latest
+        docker tag lab_2_payment_service ghcr.io/laserkillers/rsoi_labs/lab_2_payment_service:latest
+        docker tag lab_2_loyalty_service ghcr.io/laserkillers/rsoi_labs/lab_2_loyalty_service:latest
+        
+        docker push ghcr.io/laserkillers/rsoi_labs/lab_2_service_gateway:latest
+        docker push ghcr.io/laserkillers/rsoi_labs/lab_2_service_reserve:latest
+        docker push ghcr.io/laserkillers/rsoi_labs/lab_2_payment_service:latest
+        docker push ghcr.io/laserkillers/rsoi_labs/lab_2_loyalty_service:latest
 
 #    - name: Check service dropout on 8070 port
 #      run: |
