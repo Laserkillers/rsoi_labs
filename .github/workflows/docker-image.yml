@@ -70,6 +70,9 @@ jobs:
           OS_PASSWORD: ${{ secrets.OS_PASSWORD }}
         run: |
           curl -sSL https://hub.mcs.mail.ru/repository/client-keystone-auth/latest/linux/client-install.sh | bash
+          source "/home/runner/.bashrc"
+          echo install client-keystone-auth is Done
+          
           curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
           chmod +x ./kubectl
           export KUBECONFIG="$(pwd)/kuber_templates/kubeconfig.yaml"
