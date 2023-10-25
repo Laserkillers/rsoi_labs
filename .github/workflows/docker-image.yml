@@ -36,16 +36,16 @@ jobs:
       run: |
         echo $registry_token | docker login ghcr.io -u laserkillers --password-stdin
 
-        docker build -f ./webapp/DockerFileGatewayRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_service_gateway:latest .       
+        docker build -f /webapp/DockerFileGatewayRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_service_gateway:latest .       
         docker push ghcr.io/laserkillers/rsoi_labs/lab_2_service_gateway:latest
         
-        docker build -f ./webapp/DockerFileReserveServiceRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_service_reserve:latest .
+        docker build -f /webapp/DockerFileReserveServiceRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_service_reserve:latest .
         docker push ghcr.io/laserkillers/rsoi_labs/lab_2_service_reserve:latest
         
-        docker build -f ./webapp/DockerFilePaymentServiceRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_payment_service:latest .
+        docker build -f /webapp/DockerFilePaymentServiceRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_payment_service:latest .
         docker push ghcr.io/laserkillers/rsoi_labs/lab_2_payment_service:latest
 
-        docker build -f ./webapp/DockerFileLoyaltyServiceRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_loyalty_service:latest .
+        docker build -f /webapp/DockerFileLoyaltyServiceRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_loyalty_service:latest .
         docker push ghcr.io/laserkillers/rsoi_labs/lab_2_loyalty_service:latest
 
 
