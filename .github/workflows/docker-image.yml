@@ -36,7 +36,7 @@ jobs:
       run: |
         echo $registry_token | docker login ghcr.io -u laserkillers --password-stdin
         
-        cd webapp
+        cd ./rsoi/webapp
         
         docker build -f DockerFileGatewayRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_service_gateway:latest .       
         docker push ghcr.io/laserkillers/rsoi_labs/lab_2_service_gateway:latest
