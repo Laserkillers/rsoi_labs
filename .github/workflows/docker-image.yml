@@ -65,20 +65,28 @@ jobs:
 #    needs: [ publish ]
     steps:
       - uses: actions/checkout@v3
-      - name: 'Deploy'
-        run: |
-          echo $KUBECONFIG_FILE
-          
-          kubectl cluster-info
-          kubectl cluster-info dump
-          
-          kubectl delete -f ./kuber_templates/hotel.yml
-          kubectl delete -f ./kuber_templates/hotel-ingress.yml
-          
-          kubectl apply -f ./kuber_templates/hotel.yml
-          kubectl apply -f ./kuber_templates/hotel-ingress.yml
-        env:
-          KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+      - name: Setup kubeconfig
+        run: echo "${{ secrets.KUBECONFIG }}" > kubeconfig.yaml
+
+      - name: Deploy to Kubernetes
+        uses: appleboy/k8s-deploy@v1
+        with:
+          kubeconfig: kubeconfig.yaml
+          manifest: kubernetes/*.yaml
+
+#      - name: 'Deploy'
+#        run: |
+#
+#          kubectl cluster-info
+#          kubectl cluster-info dump
+#
+#          kubectl delete -f ./kuber_templates/hotel.yml
+#          kubectl delete -f ./kuber_templates/hotel-ingress.yml
+#
+#          kubectl apply -f ./kuber_templates/hotel.yml
+#          kubectl apply -f ./kuber_templates/hotel-ingress.yml
+#        env:
+#          KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
 
 
 #    - name: Check service dropout on 8070 port
