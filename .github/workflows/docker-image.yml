@@ -69,7 +69,7 @@ jobs:
         run: echo "${{ secrets.KUBECONFIG }}" > kubeconfig.yaml
 
       - name: Deploy to Kubernetes
-        uses: appleboy/tap/deploy-k8s@v1
+        uses: appleboy/deploy-k8s
         with:
           kubeconfig: kubeconfig.yaml
           manifest: kubernetes/*.yaml
