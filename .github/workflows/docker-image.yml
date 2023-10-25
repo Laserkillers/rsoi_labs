@@ -35,6 +35,8 @@ jobs:
         registry_token: ${{ secrets.REGISTRY_PULL_TOKEN }}
       run: |
         echo $registry_token | docker login ghcr.io -u laserkillers --password-stdin
+        
+        echo ls
 
         docker build -f /webapp/DockerFileGatewayRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_service_gateway:latest .       
         docker push ghcr.io/laserkillers/rsoi_labs/lab_2_service_gateway:latest
