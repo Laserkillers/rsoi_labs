@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rsoi-lab-2-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: rsoi-lab-2.com
+    http:
+      paths:
+      - path: /api/v1
+        pathType: Prefix
+        backend:
+          service:
+            name: gateway-app-svc
+            port:
+              number: 80
+      - path: /api/reserve
+        pathType: Prefix
+        backend:
+          service:
+            name: reserve-app-svc
+            port:
+              number: 80
+      - path: /api/payment
+        pathType: Prefix
+        backend:
+          service:
+            name: payment-app-svc
+            port:
+              number: 80
+      - path: /api/loyalty
+        pathType: Prefix
+        backend:
+          service:
+            name: loyalty-app-svc
+            port:
+              number: 80

@@ -1,0 +1,202 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway-app
+  template:
+    metadata:
+      labels:
+        app: gateway-app
+    spec:
+      containers:
+      - name: gateway-app
+        image: ghcr.io/laserkillers/rsoi_labs/lab_2_service_gateway:latest
+        env:
+        - name: RESERVE_PORT
+          value: ":80"
+        - name: RESERVATION_SERVICE
+          value: "http://reserve-app-svc.default"
+
+        - name: PAYMENT_PORT
+          value: ":80"
+        - name: LOYALTY_SERVICE
+          value: "http://loyalty-app-svc.default"
+
+        - name: LOYALTY_PORT
+          value: ":80"
+        - name: PAYMENT_SERVICE
+          value: "http://payment-app-svc.default"
+        ports:
+        - containerPort: 8080
+
+      imagePullSecrets:
+        - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-app-svc
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: gateway-app
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reserve-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reserve-app
+  template:
+    metadata:
+      labels:
+        app: reserve-app
+    spec:
+      containers:
+      - name: reserve-app
+        image: ghcr.io/laserkillers/rsoi_labs/lab_2_service_reserve:latest
+        env:
+        - name: DB_HOST_R
+          value: "dpg-ck9hnhegtj9c73d3als0-a.oregon-postgres.render.com"
+        - name: DB_NAME_R
+          value: "flask_db_i6wz"
+        - name: DB_PASSWORD_R
+          value: "5UuVn0kyLSuhMzKIHDYRSLLX6uFZuQw8"
+        - name: DB_PORT_R
+          value: "5432"
+        - name: DB_USER_R
+          value: "flaskuser"
+        ports:
+        - containerPort: 8070
+
+      imagePullSecrets:
+        - name: regcred
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reserve-app-svc
+  labels:
+spec:
+  ports:
+  - port: 80
+    targetPort: 8070
+    protocol: TCP
+    name: http
+  selector:
+    app: reserve-app
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-app
+  template:
+    metadata:
+      labels:
+        app: payment-app
+    spec:
+      containers:
+      - name: payment-app
+        image: ghcr.io/laserkillers/rsoi_labs/lab_2_payment_service:latest
+        env:
+        - name: DB_HOST_R
+          value: "dpg-ck9hnhegtj9c73d3als0-a.oregon-postgres.render.com"
+        - name: DB_NAME_R
+          value: "flask_db_i6wz"
+        - name: DB_PASSWORD_R
+          value: "5UuVn0kyLSuhMzKIHDYRSLLX6uFZuQw8"
+        - name: DB_PORT_R
+          value: "5432"
+        - name: DB_USER_R
+          value: "flaskuser"
+        ports:
+        - containerPort: 8060
+
+      imagePullSecrets:
+        - name: regcred
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-app-svc
+  labels:
+spec:
+  ports:
+  - port: 80
+    targetPort: 8060
+    protocol: TCP
+    name: http
+  selector:
+    app: payment-app
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loyalty-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loyalty-app
+  template:
+    metadata:
+      labels:
+        app: loyalty-app
+    spec:
+      containers:
+      - name: loyalty-app
+        image: ghcr.io/laserkillers/rsoi_labs/lab_2_loyalty_service:latest
+        env:
+        - name: DB_HOST_R
+          value: "dpg-ck9hnhegtj9c73d3als0-a.oregon-postgres.render.com"
+        - name: DB_NAME_R
+          value: "flask_db_i6wz"
+        - name: DB_PASSWORD_R
+          value: "5UuVn0kyLSuhMzKIHDYRSLLX6uFZuQw8"
+        - name: DB_PORT_R
+          value: "5432"
+        - name: DB_USER_R
+          value: "flaskuser"
+        ports:
+        - containerPort: 8050
+
+      imagePullSecrets:
+        - name: regcred
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loyalty-app-svc
+  labels:
+spec:
+  ports:
+  - port: 80
+    targetPort: 8050
+    protocol: TCP
+    name: http
+  selector:
+    app: loyalty-app
