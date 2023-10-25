@@ -27,8 +27,17 @@ jobs:
         ./scripts/wait-script.sh
       env:
         WAIT_PORTS: 8080,8070,8060,8050
+    - name: Check service dropout on 8050 port
+      run: |
+        ./scripts/test-script.sh
+      env:
+        VARIANT: v2
+        SERVICE_NAME: loyalty_service
+        PORT_NUMBER: 8050
+
   publish:
     runs-on: ubuntu-latest
+    needs: [ build ]
     steps:
     - uses: actions/checkout@v3
     - name: Pull docker image to docker registry
@@ -51,6 +60,21 @@ jobs:
         docker build -f DockerFileLoyaltyServiceRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_loyalty_service:latest .
         docker push ghcr.io/laserkillers/rsoi_labs/lab_2_loyalty_service:latest
 
+  deploy-to-kuber:
+    runs-on: ubuntu-latest
+    needs: [ publish ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: 'Deploy'
+        uses: 'deliverybot/helm@v1'
+        run: |
+          kubectl delete -f ./kuber_templates/hotel.yml
+          kubectl delete -f ./kuber_templates/hotel-ingress.yml
+          
+          kubectl apply -f ./kuber_templates/hotel.yml
+          kubectl apply -f ./kuber_templates/hotel-ingress.yml
+        env:
+          KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
 
 
 #    - name: Check service dropout on 8070 port
