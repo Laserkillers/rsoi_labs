@@ -65,8 +65,8 @@ jobs:
     needs: [ publish ]
     steps:
       - uses: actions/checkout@v3
+      - uses: 'deliverybot/helm@v1'
       - name: 'Deploy'
-        uses: 'deliverybot/helm@v1'
         run: |
           kubectl delete -f ./kuber_templates/hotel.yml
           kubectl delete -f ./kuber_templates/hotel-ingress.yml
