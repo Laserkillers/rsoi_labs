@@ -8,65 +8,69 @@ on:
 #    branches: [ "master" ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    - name: Build the Docker image
-      run: docker compose build
-    - name: Run container
-      run: | 
-        docker compose up -d
-    - name: Check loading services
-      run: |
-        chmod +x ./scripts/wait-script.sh
-        chmod +x ./scripts/wait-for.sh
-        chmod +x ./scripts/test-script.sh
-        ./scripts/wait-script.sh
-      env:
-        WAIT_PORTS: 8080,8070,8060,8050
-    - name: Check service dropout on 8050 port
-      run: |
-        ./scripts/test-script.sh
-      env:
-        VARIANT: v2
-        SERVICE_NAME: loyalty_service
-        PORT_NUMBER: 8050
-
-  publish:
-    runs-on: ubuntu-latest
-    needs: [ build ]
-    steps:
-    - uses: actions/checkout@v3
-    - name: Pull docker image to docker registry
-      env:
-        registry_token: ${{ secrets.REGISTRY_PULL_TOKEN }}
-      run: |
-        echo $registry_token | docker login ghcr.io -u laserkillers --password-stdin
-        
-        cd ./webapp
-
-        docker build -f DockerFileGatewayRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_service_gateway:latest .       
-        docker push ghcr.io/laserkillers/rsoi_labs/lab_2_service_gateway:latest
-        
-        docker build -f DockerFileReserveServiceRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_service_reserve:latest .
-        docker push ghcr.io/laserkillers/rsoi_labs/lab_2_service_reserve:latest
-        
-        docker build -f DockerFilePaymentServiceRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_payment_service:latest .
-        docker push ghcr.io/laserkillers/rsoi_labs/lab_2_payment_service:latest
-
-        docker build -f DockerFileLoyaltyServiceRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_loyalty_service:latest .
-        docker push ghcr.io/laserkillers/rsoi_labs/lab_2_loyalty_service:latest
+#  build:
+#    runs-on: ubuntu-latest
+#    steps:
+#    - uses: actions/checkout@v3
+#      with:
+#        fetch-depth: 0
+#    - name: Build the Docker image
+#      run: docker compose build
+#    - name: Run container
+#      run: |
+#        docker compose up -d
+#    - name: Check loading services
+#      run: |
+#        chmod +x ./scripts/wait-script.sh
+#        chmod +x ./scripts/wait-for.sh
+#        chmod +x ./scripts/test-script.sh
+#        ./scripts/wait-script.sh
+#      env:
+#        WAIT_PORTS: 8080,8070,8060,8050
+#    - name: Check service dropout on 8050 port
+#      run: |
+#        ./scripts/test-script.sh
+#      env:
+#        VARIANT: v2
+#        SERVICE_NAME: loyalty_service
+#        PORT_NUMBER: 8050
+#
+#  publish:
+#    runs-on: ubuntu-latest
+#    needs: [ build ]
+#    steps:
+#    - uses: actions/checkout@v3
+#    - name: Pull docker image to docker registry
+#      env:
+#        registry_token: ${{ secrets.REGISTRY_PULL_TOKEN }}
+#      run: |
+#        echo $registry_token | docker login ghcr.io -u laserkillers --password-stdin
+#
+#        cd ./webapp
+#
+#        docker build -f DockerFileGatewayRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_service_gateway:latest .
+#        docker push ghcr.io/laserkillers/rsoi_labs/lab_2_service_gateway:latest
+#
+#        docker build -f DockerFileReserveServiceRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_service_reserve:latest .
+#        docker push ghcr.io/laserkillers/rsoi_labs/lab_2_service_reserve:latest
+#
+#        docker build -f DockerFilePaymentServiceRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_payment_service:latest .
+#        docker push ghcr.io/laserkillers/rsoi_labs/lab_2_payment_service:latest
+#
+#        docker build -f DockerFileLoyaltyServiceRun -t ghcr.io/laserkillers/rsoi_labs/lab_2_loyalty_service:latest .
+#        docker push ghcr.io/laserkillers/rsoi_labs/lab_2_loyalty_service:latest
 
   deploy-to-kuber:
     runs-on: ubuntu-latest
-    needs: [ publish ]
+#    needs: [ publish ]
     steps:
       - uses: actions/checkout@v3
       - name: 'Deploy'
         run: |
+          kubectl config --kubeconfig=$KUBECONFIG_FILE
+          kubectl cluster-info
+          kubectl cluster-info dump
+          
           kubectl delete -f ./kuber_templates/hotel.yml
           kubectl delete -f ./kuber_templates/hotel-ingress.yml
           
