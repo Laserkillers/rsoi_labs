@@ -64,15 +64,33 @@ jobs:
     runs-on: ubuntu-latest
 #    needs: [ publish ]
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup kubeconfig
-        run: echo "${{ secrets.KUBECONFIG }}" > kubeconfig.yaml
-
-      - name: Deploy to Kubernetes
-        uses: appleboy/deploy-k8s
+      - name: Set the Kubernetes context
+        uses: azure/k8s-set-context@v2
         with:
-          kubeconfig: kubeconfig.yaml
-          manifest: kubernetes/*.yaml
+          method: service-account
+          k8s-url: https://95.163.182.229:6443
+          k8s-secret: ${{ secrets.KUBERNETES_SECRET }}
+
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Deploy to the Kubernetes cluster
+        uses: azure/k8s-deploy@v1
+        with:
+          namespace: default
+          manifests: |
+            kuber_templates/hotel.yaml
+            kuber_templates/hotel-ingress.yaml
+
+#      - uses: actions/checkout@v3
+#      - name: Setup kubeconfig
+#        run: echo "${{ secrets.KUBECONFIG }}" > kubeconfig.yaml
+#
+#      - name: Deploy to Kubernetes
+#        uses: appleboy/deploy-k8s@v1
+#        with:
+#          kubeconfig: kubeconfig.yaml
+#          manifest: kubernetes/*.yaml
 
 #      - name: 'Deploy'
 #        run: |
