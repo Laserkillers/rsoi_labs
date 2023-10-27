@@ -17,6 +17,7 @@ from urllib3.exceptions import NameResolutionError, MaxRetryError
 from src.static import routes
 from src.config.program_config import ProgramConfiguration
 from . import base_path
+from ..entities.api_auth import AuthorizationAPI
 from ..requests_to_services import get_data_with_handle
 from ..requests_to_services.requests_to_loyalty import RequestsToLoyaltyService
 from ..requests_to_services.requests_to_payment import RequestsToPaymentService
@@ -30,8 +31,46 @@ reserve_service_handle = RequestsToReserveService()
 loyalty_service_handle = RequestsToLoyaltyService()
 payment_service_handle = RequestsToPaymentService()
 
+api_auth = AuthorizationAPI()
+
+
+@flask_blueprint.route(base_path + '/auth', methods=['POST'])
+def auth_user():
+    params = request.args
+
+    if len(request.data) == 0:
+        request_json = request.form.to_dict()
+    else:
+        request_json = json.loads(request.data)
+
+    username = request.headers.get('Username')
+    password = request.headers.get('Password')
+    print(username)
+    print(password)
+
+    return api_auth.authorize_client(username, password)
+
+
+@flask_blueprint.route(base_path + '/check_token', methods=['POST'])
+def check_token():
+    user_token = request.headers.get('Authorization')
+    if user_token is None or len(user_token) == 0:
+        return make_response(
+            {'message': 'Empty header Authorization'},
+            400
+        )
+
+    return {'success': api_auth.check_token(user_token)}
+
+
+@flask_blueprint.route(base_path + '/check_work', methods=['POST'])
+@api_auth.required_login(request=request, make_response_func=make_response)
+def check_auth_working():
+    return {'working': True}
+
 
 @flask_blueprint.route(base_path + '/hotels', methods=['GET'])
+@api_auth.required_login(request=request, make_response_func=make_response)
 def get_hotels_from_service():
     params = request.args
     page = int(params.get('page', 1))
@@ -56,6 +95,7 @@ def get_hotels_from_service():
 
 
 @flask_blueprint.route(base_path + '/me', methods=['GET'])
+@api_auth.required_login(request=request, make_response_func=make_response)
 def get_info_about_user():
     user_uuid = request.headers.get('X-User-Name')
     if user_uuid is None or len(user_uuid) == 0:
@@ -124,6 +164,7 @@ def get_info_about_user():
 
 
 @flask_blueprint.route(base_path + '/reservations', methods=['GET'])
+@api_auth.required_login(request=request, make_response_func=make_response)
 def get_info_about_reservations():
     user_uuid = request.headers.get('X-User-Name')
     if user_uuid is None or len(user_uuid) == 0:
@@ -171,6 +212,7 @@ def get_info_about_reservations():
 
 
 @flask_blueprint.route(base_path + '/reservations', methods=['POST'])
+@api_auth.required_login(request=request, make_response_func=make_response)
 def reserve_hotel():
     user_uuid = request.headers.get('X-User-Name')
     if user_uuid is None or len(user_uuid) == 0:
@@ -316,6 +358,7 @@ def reserve_hotel():
 
 
 @flask_blueprint.route(base_path + '/reservations/<reservation_uid>', methods=['GET'])
+@api_auth.required_login(request=request, make_response_func=make_response)
 def get_info_about_reservation(reservation_uid=None):
     user_uuid = request.headers.get('X-User-Name')
 
@@ -371,6 +414,7 @@ def get_info_about_reservation(reservation_uid=None):
 
 
 @flask_blueprint.route(base_path + '/reservations/<reservation_uid>', methods=['DELETE'])
+@api_auth.required_login(request=request, make_response_func=make_response)
 def delete_reservation(reservation_uid=None):
     user_uuid = request.headers.get('X-User-Name')
 
@@ -444,7 +488,9 @@ def decrement_count_reservations(user_uuid: str):
         sleep(int(env('DELAY_BTW_REQUEST')))
     return
 
+
 @flask_blueprint.route(base_path + '/loyalty', methods=['GET'])
+@api_auth.required_login(request=request, make_response_func=make_response)
 def get_info_about_loyalty(reservation_uid=None):
     user_uuid = request.headers.get('X-User-Name')
 
