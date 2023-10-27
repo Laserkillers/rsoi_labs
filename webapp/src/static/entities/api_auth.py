@@ -84,8 +84,8 @@ class AuthorizationAPI(_AuthorizationInformation):
         self.__url_introspect_path = f"{self.auth_host}{self.introspect_url}"
         self.__payload_token = (
             f'client_id={self.auth_client_id}&'
-            f'username={self.auth_client_user}&'
-            f'password={self.auth_password}&'
+            'username={0}&'
+            'password={1}&'
             f'grant_type={self.grant_type}&'
             f'client_secret={self.auth_client_secret}'
         )
@@ -96,11 +96,12 @@ class AuthorizationAPI(_AuthorizationInformation):
         self.__time_refresh_token_expire = -1.
         return
 
-    def authorize_client(self):
+    def authorize_client(self, username: str, password: str):
+        print(self.__payload_token.format(username, password))
         result_request = requests.post(
             self.__url_to_auth,
             headers=self.headers_token,
-            data=self.__payload_token
+            data=self.__payload_token.format(username, password)
         )
 
         if not result_request.ok:
@@ -116,8 +117,9 @@ class AuthorizationAPI(_AuthorizationInformation):
         self.__refresh_token = result_request['refresh_token']
         self.__time_refresh_token_expire = result_request['refresh_expires_in']
         return {
-            'access_token': f'{self.__access_type} {self.__access_token}',
-            'refresh_token': f'{self.__access_type} {self.__refresh_token}',
+            # 'access_token': f'{self.__access_type} {self.__access_token}',
+            'access_token': f'{self.__access_token}',
+            'refresh_token': f'{self.__refresh_token}',
             'expires_in': f'{self.__time_token_expire} seconds',
         }
 
