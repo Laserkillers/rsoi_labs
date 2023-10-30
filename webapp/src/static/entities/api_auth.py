@@ -124,19 +124,20 @@ class AuthorizationAPI(_AuthorizationInformation):
         }
 
     def check_token(self, token: str):
-        self.__payload_token = (
+        payload_token = (
             f'token={token}&'
             f'client_id={self.auth_client_id}&'
             f'client_secret={self.auth_client_secret}'
         )
+
         result_request = requests.post(
             self.__url_introspect_path,
             headers=self.headers_token,
-            data=self.__payload_token
+            data=payload_token
         )
 
         if not result_request.ok:
-            raise ConnectionError('')
+            raise ConnectionError(result_request.content)
         result_request = result_request.json()
         active_flag = result_request['active']
 
@@ -157,8 +158,8 @@ class AuthorizationAPI(_AuthorizationInformation):
                 try:
                     user_token = request.headers.get('Authorization')
                     if user_token is None:
-                        return make_response_func({'status': 400, 'message': 'User token is not entered'}, 400)
-                    check_status = self.check_token(user_token)
+                        return make_response_func({'status': 401, 'message': 'User token is not entered'}, 401)
+                    check_status = self.check_token(user_token.replace('Bearer ', ''))
                 except ConnectionError:
                     return make_response_func({'status': 504, 'message': 'Server authorization is unavailable'}, 504)
                 if not check_status['success']:
