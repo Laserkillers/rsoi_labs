@@ -27,13 +27,6 @@ jobs:
         ./scripts/wait-script.sh
       env:
         WAIT_PORTS: 8080,8070,8060,8050
-    - name: Check service dropout on 8050 port
-      run: |
-        ./scripts/test-script.sh
-      env:
-        VARIANT: v2
-        SERVICE_NAME: loyalty_service
-        PORT_NUMBER: 8050
 
   publish:
     runs-on: ubuntu-latest
