@@ -2,19 +2,28 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gateway-app
+  labels:
+    name: "gateway-app"
+  annotations:
+    # force policy will ensure that deployment is updated
+    # even when tag is unchanged (latest remains)
+    keel.sh/policy: force
 spec:
   replicas: 1
+  revisionHistoryLimit: 5
   selector:
     matchLabels:
       app: gateway-app
   template:
     metadata:
+      name: gateway-app
       labels:
         app: gateway-app
     spec:
       containers:
       - name: gateway-app
         image: ghcr.io/laserkillers/rsoi_labs/lab_2_service_gateway:latest
+        imagePullPolicy: Always # this is required to force pull image
         env:
         - name: RESERVE_PORT
           value: ":80"
@@ -49,25 +58,33 @@ spec:
   selector:
     app: gateway-app
 
-
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: reserve-app
+  labels:
+    name: "reserve-app"
+  annotations:
+    # force policy will ensure that deployment is updated
+    # even when tag is unchanged (latest remains)
+    keel.sh/policy: force
 spec:
   replicas: 1
+  revisionHistoryLimit: 5
   selector:
     matchLabels:
       app: reserve-app
   template:
     metadata:
+      name: reserve-app
       labels:
         app: reserve-app
     spec:
       containers:
       - name: reserve-app
         image: ghcr.io/laserkillers/rsoi_labs/lab_2_service_reserve:latest
+        imagePullPolicy: Always # this is required to force pull image
         env:
         - name: DB_HOST_R
           value: "dpg-ck9hnhegtj9c73d3als0-a.oregon-postgres.render.com"
@@ -100,24 +117,34 @@ spec:
   selector:
     app: reserve-app
 
+
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: payment-app
+  labels:
+    name: "payment-app"
+  annotations:
+    # force policy will ensure that deployment is updated
+    # even when tag is unchanged (latest remains)
+    keel.sh/policy: force
 spec:
   replicas: 1
+  revisionHistoryLimit: 5
   selector:
     matchLabels:
       app: payment-app
   template:
     metadata:
+      name: payment-app
       labels:
         app: payment-app
     spec:
       containers:
       - name: payment-app
         image: ghcr.io/laserkillers/rsoi_labs/lab_2_payment_service:latest
+        imagePullPolicy: Always # this is required to force pull image
         env:
         - name: DB_HOST_R
           value: "dpg-ck9hnhegtj9c73d3als0-a.oregon-postgres.render.com"
@@ -156,19 +183,28 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: loyalty-app
+  labels:
+    name: "loyalty-app"
+  annotations:
+    # force policy will ensure that deployment is updated
+    # even when tag is unchanged (latest remains)
+    keel.sh/policy: force
 spec:
   replicas: 1
+  revisionHistoryLimit: 5
   selector:
     matchLabels:
       app: loyalty-app
   template:
     metadata:
+      name: loyalty-app
       labels:
         app: loyalty-app
     spec:
       containers:
       - name: loyalty-app
-        image: ghcr.io/laserkillers/rsoi_labs/lab_2_loyalty_service:latest
+        image: laserkillers/rsoi-lab-4-gateway:latest
+        imagePullPolicy: Always # this is required to force pull image
         env:
         - name: DB_HOST_R
           value: "dpg-ck9hnhegtj9c73d3als0-a.oregon-postgres.render.com"
@@ -183,8 +219,8 @@ spec:
         ports:
         - containerPort: 8050
 
-      imagePullSecrets:
-        - name: regcred
+#      imagePullSecrets:
+#        - name: regcred
 
 ---
 apiVersion: v1

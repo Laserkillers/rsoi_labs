@@ -69,6 +69,12 @@ def check_auth_working():
     return {'working': True}
 
 
+@flask_blueprint.route(base_path + '/test_update', methods=['GET'])
+def test_version():
+    return {
+        'working': 'Update v4'
+    }
+
 @flask_blueprint.route(base_path + '/hotels', methods=['GET'])
 @api_auth.required_login(request=request, make_response_func=make_response)
 def get_hotels_from_service():
