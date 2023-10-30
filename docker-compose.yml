@@ -5,12 +5,12 @@ services:
     image: lab_2_service_gateway
     container_name: lab_2_service_gateway
     build: ./webapp/
-    command: gunicorn --bind 0.0.0.0:8090 start:app --log-level=debug
+    command: gunicorn --bind 0.0.0.0:8080 start:app --log-level=debug
 #    restart: unless-stopped
     volumes:
       - ./webapp/:/usr/src/app/
     ports:
-      - 8090:8090
+      - 8080:8080
     env_file:
       - ./webapp/.env.dev
     networks:
@@ -92,14 +92,21 @@ services:
     image: jboss/keycloak
     # expose ports HOST:CONTAINER
     ports:
-      - 8080:8080
+      - 8090:8080
     # creating environment variables:
+    volumes:
+      - ./imports/:/opt/jboss/keycloak/imports
     environment:
-      - KEYCLOAK_ADMIN=admin
-      - KeyCLOAK_PASSWORD=admin
+      KEYCLOAK_IMPORT: /opt/jboss/keycloak/imports/realm-export.json -Dkeycloak.profile.feature.upload_scripts=enabled
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+#      DB_VENDOR: postgres
+#      DB_ADDR: dpg-ck9hnhegtj9c73d3als0-a.oregon-postgres.render.com
+#      DB_DATABASE: flask_db_i6wz
+#      DB_USER: flaskuser
+#      DB_PASSWORD: 5UuVn0kyLSuhMzKIHDYRSLLX6uFZuQw8
     networks:
       - backend
-
 
 volumes:
   db:
