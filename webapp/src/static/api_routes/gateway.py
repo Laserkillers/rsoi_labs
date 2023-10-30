@@ -43,8 +43,8 @@ def auth_user():
     else:
         request_json = json.loads(request.data)
 
-    username = request.headers.get('Username')
-    password = request.headers.get('Password')
+    username = request.headers.get('Username', request_json.get('username'))
+    password = request.headers.get('Password', request_json.get('password'))
     print(username)
     print(password)
 
