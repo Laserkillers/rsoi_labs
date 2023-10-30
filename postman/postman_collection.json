@@ -969,7 +969,7 @@
 	"variable": [
 		{
 			"key": "serviceUrl",
-			"value": "http://localhost:8080"
+			"value": "http://rsoi-lab-2.com"
 		},
 		{
 			"key": "hotelUid",
