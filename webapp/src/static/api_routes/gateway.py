@@ -31,6 +31,12 @@ loyalty_service_handle = RequestsToLoyaltyService()
 payment_service_handle = RequestsToPaymentService()
 
 
+@flask_blueprint.route(base_path + '/test_update', methods=['GET'])
+def test_version():
+    return {
+        'working': 'Update v4'
+    }
+
 @flask_blueprint.route(base_path + '/hotels', methods=['GET'])
 def get_hotels_from_service():
     params = request.args
