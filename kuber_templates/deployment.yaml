@@ -40,6 +40,10 @@ spec:
           value: ":80"
         - name: PAYMENT_SERVICE
           value: "http://payment-app-svc.default"
+        - name: KEYCLOAK_URL
+          value: "http://keycloak-app-svc.default"
+        - name: KEYCLOAK_CLIENT_SECRET
+          value: "rMX7edX57f9Y7zzUCAEEtgsRM7aGtQRT"
         ports:
         - containerPort: 8080
 

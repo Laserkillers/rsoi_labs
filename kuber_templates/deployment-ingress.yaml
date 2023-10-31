@@ -37,3 +37,10 @@ spec:
             name: loyalty-app-svc
             port:
               number: 80
+      - path: /auth/realms/
+        pathType: Prefix
+        backend:
+          service:
+            name: keycloak-app-svc
+            port:
+              number: 80

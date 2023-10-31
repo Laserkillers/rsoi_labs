@@ -1,0 +1,81 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak-app
+  labels:
+    name: "keycloak-app"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak-app
+  template:
+    metadata:
+      name: keycloak-app
+      labels:
+        app: keycloak-app
+    spec:
+      containers:
+      - name: keycloak-app
+        image: quay.io/keycloak/keycloak:20.0.2
+        args: ["start-dev", "--db=postgres", "--http-relative-path /auth"]
+        #args: ["start", "--optimized", "--hostname-url=http://0.0.0.0:8080/auth", "--http-relative-path=/auth", "--hostname-url=http://0.0.0.0:8080/", "hostname-strict-https=false"]
+        ports:
+        - containerPort: 8080
+        env:
+        - name: KC_PROXY
+          value: "edge"
+        - name: KC_DB
+          value: "postgres"
+        - name: KC_DB_URL
+          value: "jdbc:postgresql://postgres/postgres"
+        - name: KC_DB_USERNAME
+          value: "admin"
+        - name: KC_DB_PASSWORD
+          value: "admin"
+        - name: KEYCLOAK_ADMIN
+          value: "admin"
+        - name: KC_DB_SCHEMA
+          value: public
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          value: "admin"
+        - name: KC_HTTP_ENABLED
+          value: "true"
+        - name: KC_HEALTH_ENABLED
+          value: "true"
+        - name: KEYCLOAK_PRODUCTION
+          value: "true"
+          
+        #- name: DB_VENDOR
+        #  value: "postgres"
+        #- name: DB_ADDR
+        #  value: "postgres"
+        #- name: DB_DATABASE
+        #  value: "keycloak"
+        #- name: DB_USER
+        #  value: "admin"
+        #- name: DB_PASSWORD
+        #  value: "admin"
+        #- name: KEYCLOAK_USER
+        #  value: "admin"
+        #- name: KEYCLOAK_PASSWORD
+        #  value: admin
+
+      #imagePullSecrets:
+      #  - name: regcred
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-app-svc
+  labels:
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: keycloak-app
